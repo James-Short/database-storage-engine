@@ -1,66 +1,21 @@
-
 query = input('Input your query: ')
 
-query = query.split(' ')
 
-def formatConditions(conditions):
-    conditions = ['CustomerID', '=', '1;']
-    
-def tokenizeSelect(query):
-    keywords = {'SELECT', 'FROM', 'WHERE'}
-    if len(query) <= 1:
-        return
-    left, right = 0, 1
-    currKeyword = 'SELECT'
-    chunks = {}
-    while right < len(query):
-        if query[right] in keywords:
-            chunks[currKeyword] = query[left+1:right]
-            left = right
-            print(currKeyword)
-            currKeyword = query[right]
-        right += 1
-    chunks[currKeyword] = query[left+1: right]
-    print(chunks)
-        
+chunks = []
 
-def tokenizeDelete(query):
-    keywords = { 'DELETE', 'FROM', 'WHERE'}
-    if len(query) <= 1:
-        return
-    left, right = 0, 1
-    currKeyword = 'DELETE'
-    chunks = {}
-    while right < len(query):
-        if query[right] in keywords:
-            chunks[currKeyword] = query[left+1:right]
-            left = right
-            print(currKeyword)
-            currKeyword = query[right]
-        right += 1
-    chunks[currKeyword] = query[left+1: right]
-    print(chunks)
+start, end, prevStart = 1, 1, 0
 
-def tokenizeUpdate(query):
-    keywords = {'UPDATE', 'SET', 'WHERE'}
-    if len(query) <= 1:
-        return
-    left, right = 0, 1
-    currKeyword = 'UPDATE'
-    chunks = {}
-    while right < len(query):
-        if query[right] in keywords:
-            chunks[currKeyword] = query[left+1:right]
-            left = right
-            print(currKeyword)
-            currKeyword = query[right]
-        right += 1
-    chunks[currKeyword] = query[left+1: right]
-    print(chunks)
+keywords = {'SELECT', 'UPDATE', 'DELETE', 'FROM', 'WHERE', 'SET'}
 
-if query[0] == 'SELECT':
-    tokenizeSelect(query)
-elif query[0] == 'DELETE':
-    tokenizeDelete(query)
-elif query[0] == 'UPDATE':
-    tokenizeUpdate(query)
+while end < len(query):
+    if query[end] == ' ':
+        if(query[start:end].upper() in keywords):
+            chunks.append(query[prevStart:start-1])
+            prevStart = start
+            start += 1
+        else:
+            start = end + 1
+    end += 1
+chunks.append(query[prevStart:end+1])
+print(start, end, prevStart)
+print(chunks)
