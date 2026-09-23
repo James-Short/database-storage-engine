@@ -36,18 +36,28 @@ def traverseWhereChunk(chunk):
     start, end = 0, 0
     currNode = ExpressionNode()
     while end < len(chunk):
-        if chunk[end] == ' ' and chunk[start:end] == 'OR':
-            currNode.type = 'logical'
-            currNode.left = traverseWhereChunk(chunk[:start-1])
-            currNode.right = traverseWhereChunk(chunk[end+1:])
-            return currNode
+        if chunk[end] == ' ':
+            if chunk[start:end] == 'OR':
+                currNode.type = 'logical'
+                currNode.operator = 'OR'
+                currNode.left = traverseWhereChunk(chunk[:start-1])
+                currNode.right = traverseWhereChunk(chunk[end+1:])
+                return currNode
+            else:
+                start = end + 1
+        end += 1
     start, end = 0, 0
     while end < len(chunk):
-        currNode.type = 'logical'
-        if chunk[end] == ' ' and chunk[start:end] == 'AND':
-            currNode.left = traverseWhereChunk(chunk[:start-1])
-            currNode.right = traverseWhereChunk(chunk[end+1:])
-            return currNode
+        if chunk[end] == ' ':
+            if chunk[start:end] == 'AND':
+                currNode.type = 'logical'
+                currNode.operator = 'AND'
+                currNode.left = traverseWhereChunk(chunk[:start-1])
+                currNode.right = traverseWhereChunk(chunk[end+1:])
+                return currNode
+            else:
+                start = end + 1
+        end += 1
 
     currNode.type = 'comparison'
     for index, c in enumerate(chunk):
@@ -63,7 +73,9 @@ def traverseWhereChunk(chunk):
                 currNode.right = ExpressionNode('literal', None, None, chunk[index+1:])
     return currNode
 
-print(traverseWhereChunk(whereChunk))
+print(traverseWhereChunk(whereChunk).operator)
+print(traverseWhereChunk(whereChunk).left.operator)
+print(traverseWhereChunk(whereChunk).right.operator)
             
             
 
