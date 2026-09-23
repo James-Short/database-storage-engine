@@ -1,3 +1,5 @@
+from ExpressionNode import ExpressionNode
+
 query = input('Input your query: ')
 
 
@@ -19,3 +21,50 @@ while end < len(query):
 chunks.append(query[prevStart:end+1])
 print(start, end, prevStart)
 print(chunks)
+
+whereInd = None
+whereChunk = None
+
+for index, chunk in enumerate(chunks):
+    if len(chunk) >= 5 and chunk[0:5].upper() == 'WHERE':
+        whereInd = index
+        whereChunk = chunk[6:]
+
+print(whereChunk)
+
+def traverseWhereChunk(chunk):
+    start, end = 0, 0
+    currNode = ExpressionNode()
+    while end < len(chunk):
+        if chunk[end] == ' ' and chunk[start:end] == 'OR':
+            currNode.type = 'logical'
+            currNode.left = traverseWhereChunk(chunk[:start-1])
+            currNode.right = traverseWhereChunk(chunk[end+1:])
+            return currNode
+    start, end = 0, 0
+    while end < len(chunk):
+        currNode.type = 'logical'
+        if chunk[end] == ' ' and chunk[start:end] == 'AND':
+            currNode.left = traverseWhereChunk(chunk[:start-1])
+            currNode.right = traverseWhereChunk(chunk[end+1:])
+            return currNode
+
+    currNode.type = 'comparison'
+    for index, c in enumerate(chunk):
+        if c in {'<', '>', '=', '!=', '<=', '>='}:
+            currNode.operator = c
+            if chunk[0] == "'":
+                currNode.left = ExpressionNode('literal', None, None, chunk[1:index-2])
+            else:
+                currNode.left = ExpressionNode('literal', None, None, chunk[:index-1])
+            if chunk[-1] == "'":
+                currNode.right = ExpressionNode('literal', None, None, chunk[index+2:-1])
+            else:
+                currNode.right = ExpressionNode('literal', None, None, chunk[index+1:])
+    return currNode
+
+print(traverseWhereChunk(whereChunk))
+            
+            
+
+    
